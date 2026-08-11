@@ -9,6 +9,12 @@ if ! command -v uv >/dev/null 2>&1; then
 fi
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 
+echo "🦀 Ensuring Rust is installed (NetExec's aardwolf dep needs it to build)..."
+if ! command -v cargo >/dev/null 2>&1; then
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+fi
+export PATH="$HOME/.cargo/bin:$PATH"
+
 echo "📥 Installing Certipy..."
 uv tool install --force "git+https://github.com/ly4k/Certipy"
 
