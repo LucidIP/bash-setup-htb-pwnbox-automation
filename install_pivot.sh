@@ -13,23 +13,45 @@ sudo chown -R "$USER:$USER" "$PIVOT_DIR"
 # chisel (linux + windows, latest release)
 #####################################
 echo "📥 Installing chisel..."
-CHISEL_API="https://api.github.com/repos/jpillora/chisel/releases/latest"
-RELEASE_JSON=$(curl -s "$CHISEL_API")
-CHISEL_VER=$(echo "$RELEASE_JSON" | grep '"tag_name"' | head -1 | cut -d '"' -f4)
+# Use the plain github.com redirect, not api.github.com — the API's 60 req/hr
+# unauthenticated limit gets hit constantly on shared pwnbox IPs.
+CHISEL_VER=$(curl -sI "https://github.com/jpillora/chisel/releases/latest" \
+    | grep -i '^location:' | awk '{print $2}' | tr -d '\r\n' | xargs basename)
+if [ -z "$CHISEL_VER" ]; then
+    echo "❌ Could not resolve latest chisel version (network/GitHub issue). Aborting chisel install."
+    exit 1
+fi
+CHISEL_VER_NUM="${CHISEL_VER#v}"
 
 TMP_CHISEL=$(mktemp -d)
 cd "$TMP_CHISEL"
 for platform in linux windows; do
-    ASSET_URL=$(echo "$RELEASE_JSON" | grep "browser_download_url" | grep "${platform}_amd64" | head -1 | cut -d '"' -f4)
-    ASSET_FILE=$(basename "$ASSET_URL")
-    wget -q "$ASSET_URL" -O "$ASSET_FILE"
+    DOWNLOADED=""
+    for ext in gz zip; do
+        URL="https://github.com/jpillora/chisel/releases/download/${CHISEL_VER}/chisel_${CHISEL_VER_NUM}_${platform}_amd64.${ext}"
+        if wget -q "$URL" -O "asset_${platform}.${ext}"; then
+            DOWNLOADED="asset_${platform}.${ext}"
+            break
+        fi
+        rm -f "asset_${platform}.${ext}"
+    done
+    if [ -z "$DOWNLOADED" ]; then
+        echo "❌ Could not download chisel $CHISEL_VER for $platform (tried .gz and .zip)"
+        exit 1
+    fi
+
     mkdir -p "extract_$platform"
-    case "$ASSET_FILE" in
-        *.zip) unzip -q "$ASSET_FILE" -d "extract_$platform" ;;
-        *.gz)  gunzip -c "$ASSET_FILE" > "extract_$platform/chisel_bin" ;;
+    case "$DOWNLOADED" in
+        *.zip) unzip -q "$DOWNLOADED" -d "extract_$platform" ;;
+        *.gz)  gunzip -c "$DOWNLOADED" > "extract_$platform/chisel_bin" ;;
     esac
-    rm -f "$ASSET_FILE"
+    rm -f "$DOWNLOADED"
+
     EXTRACTED=$(find "extract_$platform" -type f | head -1)
+    if [ -z "$EXTRACTED" ]; then
+        echo "❌ Extraction produced no file for $platform — chisel install aborted"
+        exit 1
+    fi
     if [ "$platform" = "linux" ]; then
         mv "$EXTRACTED" "$PIVOT_DIR/chisel"
         chmod +x "$PIVOT_DIR/chisel"
