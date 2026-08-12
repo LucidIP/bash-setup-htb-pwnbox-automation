@@ -4,6 +4,7 @@ set -e
 # Everything lands flat in /opt/pivot (no subfolders). Source clones/build dirs
 # are removed after — only the final binaries stay.
 # Run cleanup.sh first if you want a fresh slate.
+source "$(dirname "$0")/_common.sh"
 
 PIVOT_DIR="/opt/pivot"
 sudo mkdir -p "$PIVOT_DIR"
@@ -69,8 +70,8 @@ echo "✅ chisel $CHISEL_VER -> $PIVOT_DIR/{chisel,chisel.exe}"
 echo "📥 Building ligolo-ng..."
 if ! command -v go >/dev/null 2>&1; then
     echo "🛠️ Installing Go..."
-    sudo apt update -qq
-    sudo apt install -y golang-go
+    apt_update
+    apt_install golang-go
 fi
 
 TMP_LIGOLO=$(mktemp -d)

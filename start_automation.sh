@@ -2,6 +2,7 @@
 # start_automation.sh — runs cleanup.sh, then every install_*.sh in this directory.
 
 cd "$(dirname "$0")"
+source ./_common.sh
 
 echo "🧹 Running cleanup.sh..."
 if [[ -f "cleanup.sh" ]]; then
