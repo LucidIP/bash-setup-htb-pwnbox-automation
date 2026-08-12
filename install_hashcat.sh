@@ -13,9 +13,17 @@ fi
 cd "$HASHCAT_DIR"
 
 echo "📥 Downloading latest release..."
-LATEST_URL=$(curl -s https://api.github.com/repos/hashcat/hashcat/releases/latest \
-    | grep '"browser_download_url"' | grep -i 7z | head -1 | cut -d '"' -f 4)
-wget -q "$LATEST_URL" -O hashcat.7z || curl -L "$LATEST_URL" -o hashcat.7z
+# Use the plain github.com redirect, not api.github.com — the API's 60 req/hr
+# unauthenticated limit gets hit constantly on shared pwnbox IPs.
+HC_VER=$(curl -sI "https://github.com/hashcat/hashcat/releases/latest" \
+    | grep -i '^location:' | awk '{print $2}' | tr -d '\r\n' | xargs basename)
+if [ -z "$HC_VER" ]; then
+    echo "❌ Could not resolve latest hashcat version (network/GitHub issue)."
+    exit 1
+fi
+HC_VER_NUM="${HC_VER#v}"
+LATEST_URL="https://github.com/hashcat/hashcat/releases/download/${HC_VER}/hashcat-${HC_VER_NUM}.7z"
+wget -q "$LATEST_URL" -O hashcat.7z || { echo "❌ Download failed: $LATEST_URL"; exit 1; }
 7z x hashcat.7z -y > /dev/null 2>&1
 rm hashcat.7z
 
