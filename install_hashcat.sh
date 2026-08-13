@@ -2,6 +2,7 @@
 set -e
 # install_hashcat.sh — latest hashcat release binary
 # Run cleanup.sh first if you want a fresh slate.
+source "$(dirname "$0")/_common.sh"
 
 echo "📁 Setting up hashcat directory..."
 if sudo mkdir -p /opt/hashcat 2>/dev/null && sudo chown -R "$USER:$USER" /opt/hashcat; then

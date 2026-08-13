@@ -2,6 +2,7 @@
 set -e
 # install_evilwinrm.sh — latest evil-winrm via gem (user-mode, no sudo needed)
 # Run cleanup.sh first if you want a fresh slate.
+source "$(dirname "$0")/_common.sh"
 
 echo "🏠 Setting up user gem directory..."
 # Ask Ruby directly instead of guessing the path — on Debian/Ubuntu/Parrot the

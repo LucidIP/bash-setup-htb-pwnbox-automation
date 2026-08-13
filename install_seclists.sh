@@ -2,6 +2,7 @@
 set -e
 # install_seclists.sh — SecLists + rockyou.txt
 # Run cleanup.sh first if you want a fresh slate.
+source "$(dirname "$0")/_common.sh"
 
 SECLISTS_DIR="/opt/SecLists"
 ROCKYOU="$SECLISTS_DIR/Passwords/Leaked-Databases/rockyou.txt"

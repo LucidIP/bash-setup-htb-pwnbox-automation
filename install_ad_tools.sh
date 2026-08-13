@@ -2,6 +2,7 @@
 set -e
 # install_ad_tools.sh — Certipy, Impacket, NetExec, BloodyAD via uv
 # Run cleanup.sh first if you want a fresh slate.
+source "$(dirname "$0")/_common.sh"
 
 echo "📦 Ensuring uv is installed..."
 if ! command -v uv >/dev/null 2>&1; then

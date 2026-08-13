@@ -2,6 +2,7 @@
 # cleanup.sh
 # Single source of truth for removing old/stale tool installs before a fresh
 # provision. Safe to re-run; every step is best-effort (never aborts the run).
+source "$(dirname "$0")/_common.sh"
 set +e
 
 echo "🧹 [1/7] AD tools (Certipy, Impacket, NetExec, BloodyAD)..."

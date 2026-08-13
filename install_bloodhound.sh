@@ -2,12 +2,13 @@
 set -e
 # install_bloodhound.sh — BloodHound CE + Neo4j via Docker (pwnbox safe)
 # Run cleanup.sh first if you want a fresh slate (removes native neo4j/bloodhound, ~36GB).
+source "$(dirname "$0")/_common.sh"
 
 USER_NAME=$(whoami)
 
 echo "🐳 Installing docker.io..."
-sudo apt update -y
-sudo apt install -y docker.io curl ca-certificates
+apt_update
+apt_install docker.io curl ca-certificates
 sudo systemctl enable docker.service || true
 sudo systemctl start docker.service || true
 
@@ -19,7 +20,7 @@ ensure_compose() {
         COMPOSE_CMD="sudo docker-compose"; return 0
     fi
     echo "📦 Docker Compose not found, installing plugin..."
-    sudo apt install -y docker-compose-plugin >/dev/null 2>&1
+    apt_install docker-compose-plugin >/dev/null 2>&1
     if sudo docker compose version >/dev/null 2>&1; then
         COMPOSE_CMD="sudo docker compose"; return 0
     fi
@@ -59,8 +60,13 @@ echo "🔑 Extracting BloodHound password..."
 sleep 10
 BH_PASS=$(compose logs bloodhound 2>/dev/null | grep -oP "Password Set To:\s+\K\S+" | tail -1)
 if [ -n "$BH_PASS" ]; then
-    printf "username: admin\npassword: %s\n" "$BH_PASS" > initial-password.txt
-    echo "✅ Password saved to initial-password.txt"
+    {
+        printf "username: admin\npassword: %s\n" "$BH_PASS"
+        echo "# Containers are stopped after install to avoid leaving ports open unused."
+        echo "# Start BloodHound back up when you need it:"
+        echo "#   cd $BH_DIR/server && sudo docker compose up -d"
+    } > initial-password.txt
+    echo "✅ Password + restart command saved to initial-password.txt"
 else
     echo "⚠️ No password found in logs, check manually: compose logs bloodhound | grep -i password"
 fi
@@ -70,9 +76,12 @@ echo "🔍 DEBUG: BloodHound status"
 echo "==========================="
 sudo docker system df
 compose ps
+
+echo "🛑 Stopping containers (data/volumes preserved — nothing deleted)..."
+compose down
+
 echo
-echo "🎉 BloodHound CE ready!"
+echo "🎉 BloodHound CE installed!"
 echo "📍 Directory: $BH_DIR/server"
-echo "🌐 Neo4j: http://localhost:7474"
-echo "🌐 BloodHound: http://localhost:8088"
-echo "⚙️ Control: cd $BH_DIR/server && compose {up,down,logs}"
+echo "🔑 Credentials + restart command: $BH_DIR/server/initial-password.txt"
+echo "▶️  Start it up: cd $BH_DIR/server && sudo docker compose up -d   (Neo4j: :7474, BloodHound: :8088)"

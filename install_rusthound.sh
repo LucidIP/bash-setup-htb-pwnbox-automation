@@ -2,6 +2,7 @@
 set -e
 # install_rusthound.sh — RustHound-CE (Rust + build deps + binary)
 # Run cleanup.sh first if you want a fresh slate.
+source "$(dirname "$0")/_common.sh"
 
 echo "🛠️ Installing Rust + Cargo..."
 if ! command -v cargo >/dev/null 2>&1; then
@@ -11,8 +12,8 @@ export PATH="$HOME/.cargo/bin:$PATH"
 cargo --version || { echo "❌ Rust install failed"; exit 1; }
 
 echo "📦 Installing build dependencies..."
-sudo apt update -qq
-sudo apt install -y clang libclang-dev libkrb5-dev krb5-user libsasl2-modules-gssapi-mit \
+apt_update
+apt_install clang libclang-dev libkrb5-dev krb5-user libsasl2-modules-gssapi-mit \
     build-essential pkg-config libssl-dev libgss-dev
 
 echo "🔧 Fixing gssapi headers..."

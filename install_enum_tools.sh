@@ -4,6 +4,7 @@ set -e
 # /opt/tools is for enum/loot payloads (peas, sharp) — pivoting binaries live
 # in /opt/pivot instead (see install_pivot.sh).
 # Run cleanup.sh first if you want a fresh slate.
+source "$(dirname "$0")/_common.sh"
 
 TOOLS_DIR="/opt/tools"
 PEAS_DIR="$TOOLS_DIR/peas"
