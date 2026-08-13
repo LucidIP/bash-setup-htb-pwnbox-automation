@@ -67,26 +67,32 @@ chmod +x *.sh
 
 ---
 
-## 🔜 Pending / Suggestions
+## 🔜 Future content
 
-Not installed yet — future candidates:
+Not installed/maintained yet on the main branch 
 
-- **Responder** — LLMNR/NBT-NS/mDNS poisoning
-- **mitm6** — IPv6 DNS takeover, pairs with ntlmrelayx
+Future updates:
+
+- **Responder** — poisoner/listener 
+- **Payloadallthethings** — Huge payload db
 - **Coercer** — automates PetitPotam/PrinterBug-style coercion
 - **manspider** — crawls SMB shares for interesting files/creds
-- **ldeep** / **ldapdomaindump** — lightweight LDAP enum without a full BloodHound collection
-- **socat** / **proxychains4** — pairs with chisel/ligolo tunnels
-- **tmux** — persistent sessions so a dropped SSH doesn't kill a listener
-- **mingw-w64** — cross-compile small Windows payloads locally
-- Rubeus built from source (currently a trusted community-compiled binary — see comment in `install_enum_tools.sh`)
-- `certificate_manager.py` — argv flag to toggle normal vs `msPKI-Certificate-Name-Flag=1` templates *(in progress)*
+- **sqlmap** — exploit sql tool
+- **proxychains4 + automation config** — pairs with chisel/ligolo tunnels
+- **tmux config** — change GUI looks to get close as pwnbox.
+- **test** — test
 
 ---
 
 ## ⚠️ Disclaimer
 
-For personal use on HTB/lab environments and systems you're explicitly authorized to test. Several tools here (mimikatz, Rubeus, RunasCs, chisel, ligolo-ng) are dual-use offensive security tools — do not run them against systems you don't own or don't have permission to test.
+Built for parrot os htb build edition or htb pwnbox
+Prioritize speed, organization and a stable htb ready system
+Always git clone the main branch
+Dev branch is for future updates
+Constant development and usage will be applied
+Bash AI assisted based on my private python automation
+Errors may appear as most text is human based text
 
 <div align="center">
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:6A0DAD,100:0D0D0D&height=100&section=footer" width="100%"/>
