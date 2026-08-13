@@ -6,7 +6,7 @@ set -e
 # Run cleanup.sh first if you want a fresh slate.
 source "$(dirname "$0")/_common.sh"
 
-TOOLS_DIR="/opt/tools"
+TOOLS_DIR="/opt"
 PEAS_DIR="$TOOLS_DIR/peas"
 SHARP_DIR="$TOOLS_DIR/sharp"
 sudo mkdir -p "$PEAS_DIR" "$SHARP_DIR"
