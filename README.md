@@ -31,7 +31,6 @@ Mainly built to work via `uv`, `cargo`, `gem`, and Docker.
 - `install_rusthound.sh` — RustHound-CE *(via cargo)*
 - `install_seclists.sh` — SecLists + rockyou.txt, linked into `/usr/share/wordlists`
 - `install_evilwinrm.sh` — evil-winrm *(via gem, user-mode)*
-- `install_shell_tools.sh` — Penelope shell handler + rlwrap
 
 ## 📁 Directory Layout
 
