@@ -1,14 +1,9 @@
 #!/bin/bash
 set -e
-# install_rusthound.sh — RustHound-CE (Rust + build deps + binary)
-# Run cleanup.sh first if you want a fresh slate.
+# install_rusthound.sh — RustHound-CE. Rigid build (gssapi headers) — logic below intentionally untouched.
 source "$(dirname "$0")/_common.sh"
 
-echo "🛠️ Installing Rust + Cargo..."
-if ! command -v cargo >/dev/null 2>&1; then
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-fi
-export PATH="$HOME/.cargo/bin:$PATH"
+ensure_cargo
 cargo --version || { echo "❌ Rust install failed"; exit 1; }
 
 echo "📦 Installing build dependencies..."
@@ -31,7 +26,7 @@ cargo install rusthound-ce --force --locked --root /opt/rusthound
 echo "🔗 Creating symlink..."
 mkdir -p "$HOME/bin"
 ln -sf /opt/rusthound/bin/rusthound-ce "$HOME/bin/rusthound-ce"
-echo 'export PATH="$HOME/bin:/opt/rusthound/bin:$HOME/.cargo/bin:$PATH"' >> ~/.bashrc
+add_to_path 'export PATH="$HOME/bin:/opt/rusthound/bin:$HOME/.cargo/bin:$PATH"'
 export PATH="$HOME/bin:/opt/rusthound/bin:$PATH"
 
 echo

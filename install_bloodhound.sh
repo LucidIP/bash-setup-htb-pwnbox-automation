@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
-# install_bloodhound.sh — BloodHound CE + Neo4j via Docker (pwnbox safe)
-# Run cleanup.sh first if you want a fresh slate (removes native neo4j/bloodhound, ~36GB).
+# install_bloodhound.sh — BloodHound CE + Neo4j, via Docker. Rigid sequencing (Neo4j wait, port swap) — logic below intentionally untouched.
 source "$(dirname "$0")/_common.sh"
 
 USER_NAME=$(whoami)
