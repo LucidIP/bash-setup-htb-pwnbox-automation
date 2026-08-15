@@ -1,22 +1,19 @@
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0057FF,100:FF003C&height=180&section=header&text=HTB%20setup%20automation&fontSize=40&fontColor=FFFFFF&animation=fadeIn&desc=make%20it%20ready%20to%20hunt&descAlignY=75&descSize=18" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0057FF,100:FF003C&height=180&section=header&text=HTB%20Pwnbox%20Automation&fontSize=40&fontColor=FFFFFF&animation=fadeIn&desc=make%20it%20ready%20to%20hunt%20in%20less%20than%2010%minutes&descAlignY=75&descSize=18" width="100%"/>
 
 ![OS](https://img.shields.io/badge/Parrot%20OS%20HTB%20Edition-0057FF?style=for-the-badge&logo=parrotsecurity&logoColor=white)
 
-![Status](https://img.shields.io/badge/Status-currently%20working-FF003C?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-working%2015/08/2026-FF003C?style=for-the-badge)
 
 ![Purpose](https://img.shields.io/badge/Purpose-save%20time%20configuring%20and%20cleaning%20parrot%20os-0057FF?style=for-the-badge)
 
 </div>
 
-One command cleans up heavy and old system packages, then installs everything needed for HTB machine flag hunt.
-Installs run in parallel — quiet by default, only printing errors or time logs. build logs saved to debug hidden errors and improve automation. 
-Typing errors can be found.  
----
+## Ready in less than 8 minutes while you prepare your break fast. 
 
 ## 📦 What's Included
 
 **Main workflow scripts**
-- `start_automation.sh` — runs `cleanup.sh`, then every `install_*.sh` in parallel (4 at a time), one timing summary at the end
+- `start_automation.sh` — runs `cleanup.sh`, then every `install_*.sh`.
 - `cleanup.sh` — removes all stale/system installs + disables desktop animations for perf (safe to re-run)
 - `_common.sh` — shared helper (sourced, not run directly): noninteractive apt, quiet output (spinner + log file, errors surface immediately), flock-safe apt/PATH/toolchain helpers so parallel scripts don't collide, per-script timing.
 
@@ -31,7 +28,7 @@ Typing errors can be found.
 - `install_evilwinrm.sh` — evil-winrm *(via gem, user-mode)*
 - `install_manspider.sh` — MANSPIDER SMB crawler *(via uv, no `/opt`)*
 - `install_cli_tools.sh` — Responder, sqlmap, rlwrap, exiftool *(apt, no `/opt`)*
-- `install_workstation.sh` — tmux (pwnbox blue/green/white, mouse on) + Firefox (FoxyProxy/uBlock/Wappalyzer, proxy → `127.0.0.1:8080`)
+- `install_workstation.sh` — tmux (pwnbox blue/green/white, mouse on) + Firefox (FoxyProxy/uBlock/Wappalyzer, proxy → `**127.0.0.1:8080**`)
 
 ## 📁 Directory Layout
 
