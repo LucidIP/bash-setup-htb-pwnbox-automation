@@ -1,4 +1,4 @@
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0057FF,100:FF003C&height=180&section=header&text=HTB%20Pwnbox%20Automation&fontSize=40&fontColor=FFFFFF&animation=fadeIn&desc=make%20it%20ready%20to%20hunt%20in%20less%20than%2010%minutes&descAlignY=75&descSize=18" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0057FF,100:FF003C&height=180&section=header&text=HTB%20Pwnbox%20Automation&fontSize=40&fontColor=FFFFFF&animation=fadeIn&desc=make%20it%20ready%20to%20hunt%20in%20less%20than%208%minutes&descAlignY=75&descSize=18" width="100%"/>
 
 ![OS](https://img.shields.io/badge/Parrot%20OS%20HTB%20Edition-0057FF?style=for-the-badge&logo=parrotsecurity&logoColor=white)
 
