@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
-# install_enum_tools.sh — linPEAS/winPEAS + mimikatz/Rubeus/RunasCs -> /opt/{peas,sharp}.
+# install_enum_tools.sh — linPEAS/winPEAS + mimikatz/Rubeus/RunasCs -> $HTB_BASE_DIR/{peas,sharp}.
 source "$(dirname "$0")/_common.sh"
 
-TOOLS_DIR="/opt"
+TOOLS_DIR="$HTB_BASE_DIR"
 PEAS_DIR="$TOOLS_DIR/peas"
 SHARP_DIR="$TOOLS_DIR/sharp"
 sudo mkdir -p "$PEAS_DIR" "$SHARP_DIR"
@@ -34,5 +34,5 @@ unzip -q "$TMP_RC/RunasCs.zip" -d "$TMP_RC"
 cp "$TMP_RC"/RunasCs*.exe "$SHARP_DIR/"
 rm -rf "$TMP_RC"
 
-echo "🔍 DEBUG: /opt/{peas,sharp}"; ls "$PEAS_DIR" "$SHARP_DIR"
+echo "🔍 DEBUG: $TOOLS_DIR/{peas,sharp}"; ls "$PEAS_DIR" "$SHARP_DIR"
 echo "✅ Enum tools ready!"

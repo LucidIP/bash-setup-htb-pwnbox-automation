@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
-# install_reference.sh — reference data, cloned in parallel -> /opt: SecLists+rockyou, PayloadsAllTheThings.
+# install_reference.sh — reference data, cloned in parallel -> $HTB_BASE_DIR: SecLists+rockyou, PayloadsAllTheThings.
 source "$(dirname "$0")/_common.sh"
 
-SECLISTS_DIR="/opt/SecLists"
-PAYLOADS_DIR="/opt/PayloadsAllTheThings"
+SECLISTS_DIR="$HTB_BASE_DIR/SecLists"
+PAYLOADS_DIR="$HTB_BASE_DIR/PayloadsAllTheThings"
 ROCKYOU="$SECLISTS_DIR/Passwords/Leaked-Databases/rockyou.txt"
 
 sudo git clone --depth 1 https://github.com/danielmiessler/SecLists.git "$SECLISTS_DIR" & p1=$!

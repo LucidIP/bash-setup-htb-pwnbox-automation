@@ -8,8 +8,14 @@ USER_NAME=$(whoami)
 echo "🐳 Installing docker.io..."
 apt_update
 apt_install docker.io curl ca-certificates
-sudo systemctl enable docker.service || true
-sudo systemctl start docker.service || true
+sudo systemctl enable --now docker.socket docker.service >/dev/null 2>&1
+for _ in 1 2 3 4 5; do
+    sudo docker info >/dev/null 2>&1 && break
+    say "⏳ waiting for docker daemon..."
+    sudo systemctl restart docker.service >/dev/null 2>&1
+    sleep 3
+done
+sudo docker info >/dev/null 2>&1 || { echo "❌ docker daemon not available"; exit 1; }
 
 ensure_compose() {
     if sudo docker compose version >/dev/null 2>&1; then
@@ -29,8 +35,8 @@ compose() { $COMPOSE_CMD "$@"; }
 ensure_compose
 
 echo "📁 Setting up BloodHound directory..."
-if sudo mkdir -p /opt/bloodhound/server 2>/dev/null && sudo chown -R "$USER_NAME:$USER_NAME" /opt/bloodhound; then
-    BH_DIR="/opt/bloodhound"
+if sudo mkdir -p "$HTB_BASE_DIR/bloodhound/server" 2>/dev/null && sudo chown -R "$USER_NAME:$USER_NAME" "$HTB_BASE_DIR/bloodhound"; then
+    BH_DIR="$HTB_BASE_DIR/bloodhound"
 else
     mkdir -p "$HOME/opt/bloodhound/server"
     BH_DIR="$HOME/opt/bloodhound"
@@ -43,8 +49,28 @@ sudo chown "$USER_NAME:$USER_NAME" docker-compose.yaml
 sudo sed -i 's|BLOODHOUND_PORT:-8080|BLOODHOUND_PORT:-8088|g' docker-compose.yaml
 
 echo "🚀 Starting BloodHound + Neo4j..."
+# a stale neo4j volume (old data/password) fails the healthcheck every time, and a
+# plain `down` keeps volumes — so retrying alone never fixed it. Start clean, then
+# escalate: volumes first, images second.
+compose down -v --remove-orphans >/dev/null 2>&1 || true
 compose pull
-compose up -d
+attempt=1; max=3
+until compose up -d; do
+    attempt=$((attempt + 1))
+    [ $attempt -gt $max ] && { echo "❌ containers failed to start after $max attempts"; exit 1; }
+    if [ $attempt -eq 2 ]; then
+        say "⏳ clearing volumes, retrying ($attempt/$max)..."
+        compose down -v --remove-orphans >/dev/null 2>&1 || true
+        sudo systemctl restart docker.service >/dev/null 2>&1 || true
+        sleep 5
+        sudo docker info >/dev/null 2>&1 || sleep 10
+    else
+        say "⏳ rebuilding images, retrying ($attempt/$max)..."
+        compose down --rmi all -v --remove-orphans >/dev/null 2>&1 || true
+        compose pull
+    fi
+    sleep 10
+done
 
 echo "⏳ Waiting for Neo4j (max 5min)..."
 timeout=300; delay=10; elapsed=0

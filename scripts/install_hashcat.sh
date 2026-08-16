@@ -3,8 +3,8 @@ set -e
 # install_hashcat.sh — latest hashcat release binary.
 source "$(dirname "$0")/_common.sh"
 
-if sudo mkdir -p /opt/hashcat 2>/dev/null && sudo chown -R "$USER:$USER" /opt/hashcat; then
-    HASHCAT_DIR="/opt/hashcat"
+if sudo mkdir -p "$HTB_BASE_DIR/hashcat" 2>/dev/null && sudo chown -R "$USER:$USER" "$HTB_BASE_DIR/hashcat"; then
+    HASHCAT_DIR="$HTB_BASE_DIR/hashcat"
 else
     mkdir -p "$HOME/opt/hashcat"; HASHCAT_DIR="$HOME/opt/hashcat"
 fi

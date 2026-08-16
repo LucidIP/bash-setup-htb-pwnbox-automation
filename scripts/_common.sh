@@ -8,6 +8,7 @@
 export DEBIAN_FRONTEND=noninteractive
 export NEEDRESTART_MODE=a
 export NEEDRESTART_SUSPEND=1
+export HTB_BASE_DIR="${HTB_BASE_DIR:-/opt}"
 
 _NAME="$(basename "$0")"
 _IS_TTY=0; [ -t 1 ] && _IS_TTY=1
@@ -46,7 +47,7 @@ _on_exit() {
     if [[ "$_NAME" == install_* ]]; then
         if [ $rc -ne 0 ]; then
             say "❌ FAILED at: $_NAME (${elapsed}s) -- $BASH_COMMAND"
-            tail -n 15 "$_LOG" >&3
+            tail -n 8 "$_LOG" >&3
         elif [ -z "$HTB_ORCHESTRATED" ]; then
             say "✅ $_NAME (${elapsed}s)"
         fi
@@ -58,9 +59,11 @@ trap _on_exit EXIT
 
 # --- apt, flock-guarded so parallel scripts don't fight over the dpkg lock ---
 _APT_LOCK="/tmp/.htb_apt.lock"
-apt_update() {
+apt_update() {  # once per run — 7 scripts call this, each was a full serialized update
+    local stamp="/tmp/.htb_apt_updated"
+    [ -f "$stamp" ] && return 0
     exec {afd}>"$_APT_LOCK"; flock "$afd"
-    sudo -E apt-get update -qq
+    [ -f "$stamp" ] || { sudo -E apt-get -o Acquire::Languages=none update -qq && touch "$stamp"; }
     flock -u "$afd"; exec {afd}>&-
 }
 apt_install() {  # apt_install <packages...>, retries transient dpkg failures
@@ -106,3 +109,12 @@ add_to_path() {
     printf '%s\n' "$@" >> "$HOME/.bashrc"
     flock -u "$bfd"; exec {bfd}>&-
 }
+
+# --- gh_latest <owner/repo>: latest tag via redirect (no API, no rate limit) ---
+gh_latest() {
+    curl -sI "https://github.com/$1/releases/latest" \
+        | grep -i '^location:' | awk '{print $2}' | tr -d '\r\n' | xargs basename
+}
+
+# --- dl <url> <out>: download with retries ---
+dl() { curl -fsSL --retry 3 --retry-delay 2 -o "$2" "$1"; }

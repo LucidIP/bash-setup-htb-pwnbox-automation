@@ -1,88 +1,104 @@
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0057FF,100:FF003C&height=180&section=header&text=HTB%20Pwnbox%20Automation&fontSize=40&fontColor=FFFFFF&animation=fadeIn&desc=make%20it%20ready%20to%20hunt%20in%20less%20than%208%minutes&descAlignY=75&descSize=18" width="100%"/>
+<div align="center">
 
-![OS](https://img.shields.io/badge/Parrot%20OS%20HTB%20Edition-0057FF?style=for-the-badge&logo=parrotsecurity&logoColor=white)
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0057FF,100:FF003C&height=180&section=header&text=HTB%20pwnbox%20automation&fontSize=40&fontColor=FFFFFF&animation=fadeIn&desc=make%20it%20ready%20to%20hunt&descAlignY=75&descSize=18" width="100%"/>
 
-![Status](https://img.shields.io/badge/Status-working%2015/08/2026-FF003C?style=for-the-badge)
-
-![Purpose](https://img.shields.io/badge/Purpose-save%20time%20configuring%20and%20cleaning%20parrot%20os-0057FF?style=for-the-badge)
+![OS](https://img.shields.io/badge/Parrot%20OS%20%2F%20HTB%20Pwnbox-0057FF?style=for-the-badge&logo=parrotsecurity&logoColor=white)
+![Status](https://img.shields.io/badge/Status-working%2016--08--2026-FF003C?style=for-the-badge)
 
 </div>
 
-## Ready in less than 8 minutes while you prepare your break fast. 
-
-## 📦 What's Included
-
-**Main workflow scripts**
-- `start_automation.sh` — runs `cleanup.sh`, then every `install_*.sh`.
-- `cleanup.sh` — removes all stale/system installs + disables desktop animations for perf (safe to re-run)
-- `_common.sh` — shared helper (sourced, not run directly): noninteractive apt, quiet output (spinner + log file, errors surface immediately), flock-safe apt/PATH/toolchain helpers so parallel scripts don't collide, per-script timing.
-
-**Install scripts**
-- `install_ad_tools.sh` — Certipy, Impacket, NetExec, BloodyAD *(via uv)*
-- `install_bloodhound.sh` — BloodHound CE + Neo4j *(via Docker; stops itself after setup)* **(port 8088, 8080 is Burp)**
-- `install_pivot.sh` — chisel + ligolo-ng → `/opt/pivot`, + proxychains4 *(apt, install only for now)*
-- `install_enum_tools.sh` — linPEAS/winPEAS + mimikatz/Rubeus/RunasCs → `/opt/{peas,sharp}`
-- `install_hashcat.sh` — latest hashcat release binary
-- `install_rusthound.sh` — RustHound-CE *(via cargo)*
-- `install_reference.sh` — SecLists+rockyou + PayloadsAllTheThings → `/opt/{SecLists,PayloadsAllTheThings}`
-- `install_evilwinrm.sh` — evil-winrm *(via gem, user-mode)*
-- `install_manspider.sh` — MANSPIDER SMB crawler *(via uv, no `/opt`)*
-- `install_cli_tools.sh` — Responder, sqlmap, rlwrap, exiftool *(apt, no `/opt`)*
-- `install_workstation.sh` — tmux (pwnbox blue/green/white, mouse on) + Firefox (FoxyProxy/uBlock/Wappalyzer, proxy → `**127.0.0.1:8080**`)
-
-## 📁 Directory Layout
-
-```
-/opt/pivot/     chisel, chisel.exe, ligolo-ng-proxy-*, ligolo-ng-agent-*
-/opt/peas/ (linPEAS, winPEAS)
-/opt/sharp/ (mimikatz, Rubeus, RunasCs)
-/opt/bloodhound/server/   docker-compose.yaml, initial-password.txt, restart with docker compose up -d
-/opt/hashcat/ updated hashcat
-/opt/rusthound/ community edition rust hound for windows machines
-/opt/SecLists/ also linked to /usr/share/wordlists/rockyou.txt + destroy gz file to save disk space
-/opt/PayloadsAllTheThings/ payload reference db
-```
-Responder, sqlmap, proxychains4, manspider, rlwrap, exiftool — no `/opt`, land in their normal apt/uv spots instead.
-
 ---
 
-## 🚀 Installation
+## 🚀 Install
 
 ```bash
-git clone https://github.com/LucidIP/bash-setup-htb-pwnbox-automation.git
-cd bash-setup-htb-pwnbox-automation
-chmod +x *.sh
+git clone https://github.com/LucidIP/htb-pwnbox-automation.git
+cd htb-pwnbox-automation
+chmod +x start_automation.sh scripts/*.sh
 ./start_automation.sh
-# wait 10 minutes
 ```
 
-## 🛠️ Future content
-
-Some being tested at the LucidIP-dev branch some are still offline or at python database.
-
-| Update | Info |
+| Flag | Effect |
 |---|---|
-|**proxychains4 config automation**|auto-chain proxychains4 with chisel/ligolo pivots|
-|**coming**|**soon**|
+| `--skip-clean` | update tools, skip the wipe |
+| `--path DIR` | install to `DIR`, not `/opt` · nested ok `/path/path` |
+| `-h` | show flags |
 
 ---
 
-## ⚠️ Disclaimer
+## 📦 Tools
 
-Built for parrot os htb build edition or htb pwnbox
+| Script | Installs | Via |
+|---|---|---|
+| `ad_tools` | Certipy, Impacket, NetExec, BloodyAD | uv |
+| `bloodhound` | BloodHound CE + Neo4j | docker |
+| `pivot` | chisel, ligolo-ng, proxychains4 | bin |
+| `enum_tools` | linPEAS, winPEAS, mimikatz, Rubeus, RunasCs | bin |
+| `rusthound` | RustHound-CE | bin |
+| `hashcat` | latest release | bin |
+| `reference` | SecLists + rockyou, PayloadsAllTheThings | git |
+| `evilwinrm` | evil-winrm | gem |
+| `manspider` | SMB crawler | uv |
+| `cli_tools` | Responder, sqlmap, rlwrap, exiftool | apt |
+| `workstation` | tmux + Firefox proxy stack | conf |
 
-Prioritize speed, organization and a stable htb ready system
+Add a tool → drop `scripts/install_<name>.sh` in. Picked up automatically.
 
-Always git clone the main branch
+---
 
-Dev branch is for future updates
+## ⚙️ Core
 
-Constant development and usage will be applied
+| File | Role |
+|---|---|
+| `start_automation.sh` | clean → parallel install → summary |
+| `scripts/cleanup.sh` | tools, logs, cache, RAM, animations, workspaces |
+| `scripts/_common.sh` | quiet logs, flock apt/PATH, retries, timers |
 
-Bash AI assisted based on my private python automation
+---
 
-Errors may appear as most text is human based text
+## 🐞 Debug
+
+Silent while working with few reports and saved logs.
+
+Full output per tool → `/tmp/.htb_logs/<name>.log`.
+
+---
+
+## 📁 Layout
+
+```
+$HTB_BASE_DIR (default /opt)
+├── pivot/                chisel, ligolo-proxy, ligolo-agent(.exe)
+├── peas/                 linPEAS, winPEAS
+├── sharp/                mimikatz, Rubeus, RunasCs
+├── bloodhound/server/    compose + initial-password.txt
+├── hashcat/  rusthound/
+├── SecLists/             → /usr/share/wordlists/rockyou.txt
+└── PayloadsAllTheThings/
+```
+
+## 🖥️ Workstation
+
+**tmux** — pwnbox color, `0`-indexed, vi keys, 200k history, `|` `-` splits.
+White text, green files, blue dirs. Mouse scroll + drag-copy across window with scroll. `xclip` to system clipboard.
+
+**Firefox** — FoxyProxy + uBlock + Wappalyzer auto install/update, proxy → Burp `127.0.0.1:8080`. No tabs opened.
+BloodHound serves on `8088`, keeping `8080` free for Burp.
+
+**Performance** — animations off, single workspace, caches freed, performance setup.
+
+---
 
 <div align="center">
+
+## 🔮 Next
+
+![Next](https://img.shields.io/badge/proxychains4-auto--chain%20chisel%20%2F%20ligolo-0057FF?style=for-the-badge)
+![Soon](https://img.shields.io/badge/more-coming%20soon-FF003C?style=for-the-badge)
+
+Parrot OS HTB edition / pwnbox · untested on other kernels
+`main` stable · `dev` first for dev testing
+
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF003C,100:0057FF&height=100&section=footer" width="100%"/>
+
 </div>
