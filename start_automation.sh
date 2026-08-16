@@ -15,9 +15,13 @@ usage() {
     cat << 'EOF'
 usage: ./start_automation.sh [options]
 
-  --skip-clean    update tools, skip the cleanup wipe
-  --path DIR      install to DIR instead of /opt (nested ok: /path/path)
-  -h, --help      this
+  --skip-clean      update tools, skip the cleanup wipe
+  --skip-colors     don't force HTB colors/theme (tmux palette, ls, terminal profile)
+  --skip-tmux       don't touch tmux config
+  --skip-firefox    don't touch Firefox config
+  --skip-code       don't touch VS Code (extensions, codium removal)
+  --path DIR        install to DIR instead of /opt (nested ok: /path/path)
+  -h, --help        this
 
 more flags coming as the project grows.
 EOF
@@ -27,6 +31,10 @@ EOF
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --skip-clean) SKIP_CLEAN=1; shift ;;
+        --skip-colors) export HTB_SKIP_COLORS=1; shift ;;
+        --skip-tmux) export HTB_SKIP_TMUX=1; shift ;;
+        --skip-firefox) export HTB_SKIP_FIREFOX=1; shift ;;
+        --skip-code) export HTB_SKIP_CODE=1; shift ;;
         --path) export HTB_BASE_DIR="$2"; shift 2 ;;
         -h|--help) usage ;;
         *) echo "unknown option: $1"; echo "try -h"; exit 1 ;;
@@ -60,6 +68,7 @@ for s in "${ORDER[@]}"; do [[ -f "$s" ]] && scripts+=("$s"); done
 for s in install_*.sh; do [[ -f "$s" ]] && { [[ " ${scripts[*]} " == *" $s "* ]] || scripts+=("$s"); }; done
 count=${#scripts[@]}
 echo "🚀 $count tools, $PARALLEL at a time"
+echo "   first result can take ~200s (bloodhound's docker pulls go first) — normal, not stuck"
 echo
 
 # each job reports the moment it ends — no polling, no repeated counters.
@@ -76,6 +85,9 @@ for script in "${scripts[@]}"; do
     if (( running >= PARALLEL )); then wait -n; running=$((running - 1)); fi
 done
 wait
+
+echo "🧹 releasing install caches..."
+bash cleanup.sh --cache-only
 
 ok=0; bad=()
 for script in "${scripts[@]}"; do

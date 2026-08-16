@@ -1,13 +1,39 @@
 #!/bin/bash
-# cleanup.sh [--path DIR] — removes stale/system tool installs before a fresh provision. Safe to re-run, best-effort.
+# cleanup.sh [--path DIR] [--cache-only] — removes stale/system tool installs before a fresh
+# provision, or (--cache-only) just releases caches after install. Safe to re-run, best-effort.
 source "$(dirname "$0")/_common.sh"
 set +e
+CACHE_ONLY=0
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --path) export HTB_BASE_DIR="$2"; shift 2 ;;
+        --cache-only) CACHE_ONLY=1; shift ;;
         *) shift ;;
     esac
 done
+
+# apt/uv/pip/cargo/npm/go/docker caches -- shared by the pre-install deep wipe (step 8)
+# and the post-install --cache-only pass, so both stay in sync
+release_cache() {
+    sudo apt clean 2>/dev/null
+    sudo rm -rf /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/* 2>/dev/null
+    command -v uv     >/dev/null 2>&1 && uv cache clean 2>/dev/null
+    command -v pip3   >/dev/null 2>&1 && pip3 cache purge 2>/dev/null
+    command -v cargo  >/dev/null 2>&1 && rm -rf "$HOME/.cargo/registry/cache" "$HOME/.cargo/registry/src" 2>/dev/null
+    command -v npm    >/dev/null 2>&1 && npm cache clean --force 2>/dev/null
+    command -v go     >/dev/null 2>&1 && go clean -cache -modcache 2>/dev/null
+    command -v docker >/dev/null 2>&1 && sudo docker builder prune -af 2>/dev/null
+    rm -rf "$HOME/.cache"/* 2>/dev/null
+}
+
+if [[ $CACHE_ONLY -eq 1 ]]; then
+    echo "🧹 post-install cache release (frees the RAM/disk the installers just used)..."
+    release_cache
+    sync; echo 3 | sudo tee /proc/sys/vm/drop_caches >/dev/null 2>&1
+    hash -r
+    echo "✅ cache released."
+    exit 0
+fi
 
 echo "🧹 [1/10] AD tools (Certipy, Impacket, NetExec, BloodyAD)..."
 sudo rm -f /usr/local/bin/{certipy,impacket,nxc,netexec,bloodyAD}* /usr/bin/{certipy,impacket,nxc,netexec,bloodyAD}*
@@ -39,22 +65,29 @@ echo "🧹 [5/10] Penelope + rlwrap + exiftool..."
 command -v uv >/dev/null 2>&1 && uv tool uninstall penelope-shell-handler 2>/dev/null
 sudo apt remove -y rlwrap libimage-exiftool-perl 2>/dev/null
 
-echo "🧹 [6/10] Responder, sqlmap, proxychains4, manspider..."
-sudo apt remove -y responder sqlmap proxychains4 2>/dev/null
+echo "🧹 [6/10] Responder, sqlmap, proxychains4, manspider, freerdp3-x11..."
+sudo apt remove -y responder sqlmap proxychains4 freerdp3-x11 2>/dev/null
 command -v uv >/dev/null 2>&1 && uv tool uninstall manspider 2>/dev/null
 sudo apt remove -y tesseract-ocr 2>/dev/null
 
-echo "🧹 [7/10] tmux + Firefox automation configs..."
-rm -f "$HOME/.tmux.conf"
+echo "🧹 [7/10] tmux + Firefox + color configs, codium (only if code is also present)..."
+rm -f "$HOME/.tmux.conf" "$HOME/.htb_colors.sh"
+sed -i '/htb_colors.sh/d' "$HOME/.bashrc" 2>/dev/null
 sudo rm -f /etc/firefox/policies/policies.json
+if command -v code >/dev/null 2>&1; then
+    sudo apt remove -y codium vscodium 2>/dev/null
+    sudo rm -f /usr/bin/codium /usr/local/bin/codium 2>/dev/null
+    sudo rm -f /usr/share/applications/codium.desktop /usr/share/applications/*vscodium*.desktop 2>/dev/null
+    rm -f "$HOME/.local/share/applications/"*codium*.desktop 2>/dev/null
+fi
 
 echo "🧹 [8/10] Wordlists, $HTB_BASE_DIR, Ghidra, logs+cache (disk space)..."
 sudo rm -rf /usr/share/wordlists/* "$HTB_BASE_DIR"/* 2>/dev/null
 sudo apt remove --purge -y seclists ghidra 2>/dev/null
-sudo apt clean 2>/dev/null
 sudo journalctl --vacuum-size=50M 2>/dev/null
 sudo find /var/log -type f \( -name "*.gz" -o -name "*.[0-9]" \) -delete 2>/dev/null
-rm -rf "$HOME/.cache/thumbnails" "$HOME/.cache/pip" "$HOME/.cache/uv" /tmp/.htb_logs /tmp/.htb_* 2>/dev/null
+release_cache
+rm -rf /tmp/.htb_logs /tmp/.htb_* 2>/dev/null
 
 echo "🧹 [9/10] apt autoremove/autoclean..."
 sudo apt autoremove -y 2>/dev/null
@@ -65,7 +98,7 @@ if command -v gsettings >/dev/null 2>&1; then
     # mate (parrot default)
     gsettings set org.mate.interface enable-animations false 2>/dev/null
     gsettings set org.mate.interface gtk-enable-animations false 2>/dev/null
-    gsettings set org.mate.Marco.general compositing-manager false 2>/dev/null
+    # compositing stays on -- off caused black-flash on the streamed remote desktop
     gsettings set org.mate.Marco.general compositing-fast-alt-tab true 2>/dev/null
     gsettings set org.mate.Marco.general reduced-resources true 2>/dev/null
     gsettings set org.mate.Marco.general num-workspaces 1 2>/dev/null
