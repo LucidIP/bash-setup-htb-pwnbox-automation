@@ -29,7 +29,7 @@ chmod +x st* scripts/*
 ## 📦 Tools
 
 | Script | Installs |
-|---|---|---|
+|---|---|
 | `ad_tools` | Certipy, Impacket, NetExec, BloodyAD |
 | `bloodhound` | BloodHound CE + Neo4j |
 | `pivot` | chisel, ligolo-ng, proxychains4 |
