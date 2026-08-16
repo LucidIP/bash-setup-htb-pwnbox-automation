@@ -119,14 +119,6 @@ if [ "$SKIP_FIREFOX" != "1" ]; then
         "https://addons.mozilla.org/firefox/downloads/latest/wappalyzer/latest.xpi"
       ]
     },
-    "Proxy": {
-      "Mode": "manual",
-      "Locked": false,
-      "HTTPProxy": "127.0.0.1:8080",
-      "UseHTTPProxyForAllProtocols": true,
-      "SSLProxy": "127.0.0.1:8080",
-      "Passthrough": "<local>"
-    },
     "3rdparty": {
       "Extensions": {
         "foxyproxy@eric.h.jung": {

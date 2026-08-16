@@ -3,10 +3,8 @@
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0057FF,100:FF003C&height=180&section=header&text=HTB%20pwnbox%20automation&fontSize=40&fontColor=FFFFFF&animation=fadeIn&desc=make%20it%20ready%20to%20hunt&descAlignY=75&descSize=18" width="100%"/>
 
 ![OS](https://img.shields.io/badge/Parrot%20OS%20%2F%20HTB%20Pwnbox-0057FF?style=for-the-badge&logo=parrotsecurity&logoColor=white)
-![Status](https://img.shields.io/badge/Status-working%2016--08--2026-FF003C?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-working%2008--2026-FF003C?style=for-the-badge)
 ![Shell](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white)
-
-**Parallel, idempotent provisioning for HTB Pwnbox / Parrot OS** — AD tooling, wordlists, and a themed workstation, installed concurrently and safe to re-run.
 
 </div>
 
@@ -14,9 +12,11 @@
 
 ## Description
 
-Provisions a fully-loaded HTB Pwnbox / Parrot OS box in a single run: Active Directory tooling, web fuzzing, password cracking, wordlists, and pivoting utilities — installed in parallel, idempotent by design, safe to re-run any time to update in place.
+Provisions a fully-loaded HTB Pwnbox / Parrot OS box in a single run: Active Directory tooling, web fuzzing, password cracking, wordlists, and pivoting utilities
 
-Ships a themed workstation on top: tmux, Firefox wired straight into Burp, and VS Code extensions for .NET decompilation and vulnerability scanning. Every piece of it — colors, tmux, Firefox, VS Code — is individually skippable.
+HTB theme, tmux config, firefox wired straight into burp, and vscode extensions for .net decompilation and vulnerability scanning.
+
+Built with the purpose of speeding up pwnbox performance and saving time while I'm studying.
 
 ```bash
 git clone https://github.com/LucidIP/htb-pwnbox-automation.git
@@ -57,7 +57,7 @@ See [Flags](#-flags) for `--skip-*` options and custom install paths.
 | `evilwinrm` | evil-winrm |
 | `manspider` | SMB crawler |
 | `cli_tools` | Responder, sqlmap, rlwrap, exiftool, freerdp3-x11, ffuf, feroxbuster |
-| `workstation` | tmux + Firefox proxy stack + VS Code (ILSpy, Snyk) |
+| `workstation` | tmux + Firefox (FoxyProxy) + VS Code (ILSpy, Snyk) |
 
 Add a tool → drop `scripts/install_<name>.sh` in. Picked up automatically.
 
@@ -101,7 +101,7 @@ $HTB_BASE_DIR (default /opt)
 |---|---|---|
 | Colors | HTB palette forced on tmux and `ls` | `--skip-colors` |
 | tmux | `0`-indexed, vi keys, 200k history, `\|` `-` splits, mouse scroll, copy → OS clipboard (xclip/wl-copy/pbcopy) | `--skip-tmux` |
-| Firefox | FoxyProxy + uBlock + Wappalyzer → Burp `127.0.0.1:8080`, BloodHound stays on `8088` | `--skip-firefox` |
+| Firefox | FoxyProxy + uBlock + Wappalyzer installed, Burp `127.0.0.1:8080` pre-set in FoxyProxy — browser proxy stays on auto, toggle Burp on manually | `--skip-firefox` |
 | VS Code | ILSpy + Snyk installed; codium dropped only if `code` is also present | `--skip-code` |
 
 🟢 `#9FEF00` files/accent · 🔵 `#004CFF` dirs/status · ⬛ `#141A26` backgrounds · ⬜ `#FFFFFF` text
