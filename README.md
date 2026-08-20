@@ -99,7 +99,7 @@ $HTB_BASE_DIR (default /opt)
 | Part | What | Skip |
 |---|---|---|
 | Colors | HTB palette forced on tmux and `ls` | `--skip-colors` |
-| tmux | `0`-indexed, vi keys, 200k history, `\|` `-` splits, mouse scroll, `prefix`+`[` (or double-click) to select — holds until `y`/`Enter` copies → OS clipboard (xclip/wl-copy/pbcopy) | `--skip-tmux` |
+| tmux | `0`-indexed, vi keys, 10k history, `allow-rename off`, `prefix`+`C` pipes a command's output to `xclip` | `--skip-tmux` |
 | Firefox | FoxyProxy + uBlock + Wappalyzer installed, Burp `127.0.0.1:8080` pre-set in FoxyProxy — browser proxy stays on auto, toggle Burp on manually | `--skip-firefox` |
 | VS Code | ILSpy + Snyk installed; codium dropped only if `code` is also present | `--skip-code` |
 

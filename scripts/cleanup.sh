@@ -74,6 +74,7 @@ echo "🧹 [7/10] tmux + Firefox + color configs, codium (only if code is also p
 rm -f "$HOME/.tmux.conf" "$HOME/.htb_colors.sh"
 sed -i '/htb_colors.sh/d' "$HOME/.bashrc" 2>/dev/null
 sudo rm -f /etc/firefox/policies/policies.json
+sudo apt remove -y xclip 2>/dev/null
 if command -v code >/dev/null 2>&1; then
     sudo apt remove -y codium vscodium 2>/dev/null
     sudo rm -f /usr/bin/codium /usr/local/bin/codium 2>/dev/null
