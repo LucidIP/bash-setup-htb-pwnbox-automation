@@ -54,6 +54,11 @@ set -g history-limit 200000
 setw -g mode-keys vi
 unbind -n WheelUpPane
 unbind -n MouseDrag1Pane
+# don't auto-copy-and-exit on drag-release -- that's what made double-click's word-select
+# flash and vanish instantly (the click's own tiny mouse-up was read as a drag-end).
+# selection now just holds, exactly like a plain terminal, until a deliberate y/Enter.
+bind -T copy-mode-vi MouseDragEnd1Pane send -X copy-selection-no-clear
+bind -T copy-mode    MouseDragEnd1Pane send -X copy-selection-no-clear
 
 # index
 set -sg escape-time 0
@@ -64,13 +69,10 @@ bind | split-window -h -c "#{pane_current_path}"
 bind - split-window -v -c "#{pane_current_path}"
 EOF
 
-    # copy-mode's own default actions (drag-release, y, Enter) -- unaffected by the unbinds
-    # above since those only touched the root table. Only reachable via a deliberate prefix+[
-    # now, so this can't fire from an accidental drag anymore -- piped to the OS clipboard.
+    # deliberate copy -- y/Enter on an active selection is "the copy action" (mirrors a
+    # plain terminal's Ctrl+Shift+C), piped straight to the OS clipboard
     if [ -n "$CLIP_CMD" ]; then
         cat >> "$HOME/.tmux.conf" << TMUXEOF
-bind -T copy-mode-vi MouseDragEnd1Pane send -X copy-pipe-and-cancel "$CLIP_CMD"
-bind -T copy-mode    MouseDragEnd1Pane send -X copy-pipe-and-cancel "$CLIP_CMD"
 bind -T copy-mode-vi y send -X copy-pipe-and-cancel "$CLIP_CMD"
 bind -T copy-mode-vi Enter send -X copy-pipe-and-cancel "$CLIP_CMD"
 TMUXEOF

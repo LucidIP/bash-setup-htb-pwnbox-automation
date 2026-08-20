@@ -12,9 +12,11 @@
 
 ## Description
 
-Provisions a fully-loaded HTB Pwnbox / Parrot OS box in a single run — Active Directory tooling, web fuzzing, password cracking, wordlists, and pivoting utilities, installed in parallel and idempotent by design.
+Active Directory tooling, web fuzzing, password cracking, wordlists, and pivoting utilities, installed in parallel and idempotent by design.
 
-Layers on a themed workstation: tmux, Firefox pre-wired for Burp, and VS Code extensions for .NET decompilation and vulnerability scanning — every piece individually skippable, built to cut setup time to zero before a box starts.
+Includes themed workstation: tmux, Firefox pre-wired for Burp, and VS Code extensions for .NET decompilation and vulnerability scanning.
+
+Every piece individually skippable, built to automate setup of a new a box or hack session.
 
 ```bash
 git clone https://github.com/LucidIP/htb-pwnbox-automation.git
@@ -22,8 +24,6 @@ cd htb-pwnbox-automation
 chmod +x start_automation.sh scripts/*.sh
 ./start_automation.sh
 ```
-
-See [Flags](#-flags) for `--skip-*` options and custom install paths.
 
 ---
 
@@ -99,7 +99,7 @@ $HTB_BASE_DIR (default /opt)
 | Part | What | Skip |
 |---|---|---|
 | Colors | HTB palette forced on tmux and `ls` | `--skip-colors` |
-| tmux | `0`-indexed, vi keys, 200k history, `\|` `-` splits, mouse scroll, `prefix`+`[` to select + copy → OS clipboard (xclip/wl-copy/pbcopy) | `--skip-tmux` |
+| tmux | `0`-indexed, vi keys, 200k history, `\|` `-` splits, mouse scroll, `prefix`+`[` (or double-click) to select — holds until `y`/`Enter` copies → OS clipboard (xclip/wl-copy/pbcopy) | `--skip-tmux` |
 | Firefox | FoxyProxy + uBlock + Wappalyzer installed, Burp `127.0.0.1:8080` pre-set in FoxyProxy — browser proxy stays on auto, toggle Burp on manually | `--skip-firefox` |
 | VS Code | ILSpy + Snyk installed; codium dropped only if `code` is also present | `--skip-code` |
 
@@ -111,7 +111,7 @@ Snyk needs a one-time sign-in per user to sync. Not an error, just avoiding stor
 
 Every tool tracks upstream latest — GitHub releases, apt, or the tool's own package manager, never a pinned version.
 
-**Boosted Performance** — animations off, compositor kept on (avoids flicker on the streamed desktop), single workspace. Cache wiped before install (more free RAM/disk) and after (releases what the installers used).
+**Boosted Performance** : animations off, compositor kept on (avoids flicker on the streamed desktop), set a single workspace. Cache gets wiped before and after install.
 
 ---
 
@@ -123,6 +123,7 @@ Every tool tracks upstream latest — GitHub releases, apt, or the tool's own pa
 ![Soon](https://img.shields.io/badge/more-coming%20soon-FF003C?style=for-the-badge)
 
 [Parrot OS HTB edition](https://parrotsec.org/download/) / [HTB Pwnbox](https://help.hackthebox.com/en/articles/5185608-introduction-to-pwnbox) · untested on other kernels
+
 `main` stable · `dev`  test
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF003C,100:0057FF&height=100&section=footer" width="100%"/>
