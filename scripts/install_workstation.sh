@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e
-# install_workstation.sh — tmux (scroll, index, HTB colors+background) + Firefox + VS Code
-# (ILSpy, Snyk). Skippable: --skip-tmux / --skip-colors / --skip-firefox / --skip-code.
+# install_workstation.sh — tmux (scroll, index, HTB colors+background, deliberate copy-mode
+# only via prefix+[, copy -> OS clipboard) + Firefox + VS Code (ILSpy, Snyk).
+# Skippable: --skip-tmux / --skip-colors / --skip-firefox / --skip-code.
 source "$(dirname "$0")/_common.sh"
 
 SKIP_COLORS="${HTB_SKIP_COLORS:-0}"
@@ -17,6 +18,23 @@ if [ "$SKIP_TMUX" != "1" ]; then
     TERM_DEF="tmux-256color"
     infocmp tmux-256color >/dev/null 2>&1 || TERM_DEF="screen-256color"
 
+    # OS clipboard tool for this session -- inspected once, used below. pbcopy/wl-copy
+    # ship with macOS/Wayland already; on plain X11 (pwnbox, most Parrot) install xclip.
+    CLIP_CMD=""
+    if command -v pbcopy >/dev/null 2>&1; then
+        CLIP_CMD="pbcopy"
+    elif command -v wl-copy >/dev/null 2>&1; then
+        CLIP_CMD="wl-copy"
+    elif command -v xclip >/dev/null 2>&1; then
+        CLIP_CMD="xclip -selection clipboard -in"
+    elif [ -n "$WAYLAND_DISPLAY" ]; then
+        apt_install wl-clipboard 2>/dev/null || true
+        command -v wl-copy >/dev/null 2>&1 && CLIP_CMD="wl-copy"
+    else
+        apt_install xclip 2>/dev/null || true
+        command -v xclip >/dev/null 2>&1 && CLIP_CMD="xclip -selection clipboard -in"
+    fi
+
     [ -f "$HOME/.tmux.conf" ] && cp "$HOME/.tmux.conf" "$HOME/.tmux.conf.bak.$(date +%s)"
     cat > "$HOME/.tmux.conf" << EOF
 set -g default-terminal "$TERM_DEF"
@@ -27,10 +45,15 @@ EOF
 set -ag terminal-overrides ",*256col*:RGB,*256col*:Tc,xterm*:RGB,screen*:RGB"
 if -b '[ "$(tmux -V | cut -d" " -f2 | tr -d "a-z")" \> "3.1" ]' 'set -as terminal-features ",*:RGB"'
 
-# scrolling only -- stock tmux, no custom mouse/copy bindings
+# scrolling: no auto-entry into copy-mode from a plain wheel-up/drag -- that auto-trigger
+# was the actual root cause of the flaky copy behaviour. prefix+[ (tmux's own unmodified
+# default) is the deliberate way in; wheel/drag/select all work at their normal tmux
+# defaults once you're actually inside copy-mode -- only the root-level auto-trigger is gone.
 set -g mouse on
 set -g history-limit 200000
 setw -g mode-keys vi
+unbind -n WheelUpPane
+unbind -n MouseDrag1Pane
 
 # index
 set -sg escape-time 0
@@ -40,6 +63,18 @@ set -g renumber-windows on
 bind | split-window -h -c "#{pane_current_path}"
 bind - split-window -v -c "#{pane_current_path}"
 EOF
+
+    # copy-mode's own default actions (drag-release, y, Enter) -- unaffected by the unbinds
+    # above since those only touched the root table. Only reachable via a deliberate prefix+[
+    # now, so this can't fire from an accidental drag anymore -- piped to the OS clipboard.
+    if [ -n "$CLIP_CMD" ]; then
+        cat >> "$HOME/.tmux.conf" << TMUXEOF
+bind -T copy-mode-vi MouseDragEnd1Pane send -X copy-pipe-and-cancel "$CLIP_CMD"
+bind -T copy-mode    MouseDragEnd1Pane send -X copy-pipe-and-cancel "$CLIP_CMD"
+bind -T copy-mode-vi y send -X copy-pipe-and-cancel "$CLIP_CMD"
+bind -T copy-mode-vi Enter send -X copy-pipe-and-cancel "$CLIP_CMD"
+TMUXEOF
+    fi
 
     if [ "$SKIP_COLORS" != "1" ]; then
         cat >> "$HOME/.tmux.conf" << 'EOF'
@@ -124,6 +159,6 @@ if [ "$SKIP_CODE" != "1" ]; then
 fi
 
 echo "🔍 workstation"
-[ "$SKIP_TMUX" != "1" ] && { tmux -V; echo "term=$TERM_DEF"; }
+[ "$SKIP_TMUX" != "1" ] && { tmux -V; echo "term=$TERM_DEF"; [ -n "$CLIP_CMD" ] && echo "clipboard=$CLIP_CMD"; }
 [ "$SKIP_CODE" != "1" ] && command -v code >/dev/null 2>&1 && echo "vscode-ext=ilspy-vscode,snyk-security"
 echo "✅ workstation ready (running tmux: tmux kill-server for a full reload)"
