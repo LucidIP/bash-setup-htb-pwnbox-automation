@@ -12,11 +12,9 @@
 
 ## Description
 
-Provisions a fully-loaded HTB Pwnbox / Parrot OS box in a single run: Active Directory tooling, web fuzzing, password cracking, wordlists, and pivoting utilities
+Provisions a fully-loaded HTB Pwnbox / Parrot OS box in a single run — Active Directory tooling, web fuzzing, password cracking, wordlists, and pivoting utilities, installed in parallel and idempotent by design.
 
-HTB theme, tmux config, firefox wired straight into burp, and vscode extensions for .net decompilation and vulnerability scanning.
-
-Built with the purpose of speeding up pwnbox performance and saving time while I'm studying.
+Layers on a themed workstation: tmux, Firefox pre-wired for Burp, and VS Code extensions for .NET decompilation and vulnerability scanning — every piece individually skippable, built to cut setup time to zero before a box starts.
 
 ```bash
 git clone https://github.com/LucidIP/htb-pwnbox-automation.git
@@ -101,7 +99,7 @@ $HTB_BASE_DIR (default /opt)
 | Part | What | Skip |
 |---|---|---|
 | Colors | HTB palette forced on tmux and `ls` | `--skip-colors` |
-| tmux | `0`-indexed, vi keys, 200k history, `\|` `-` splits, mouse scroll, copy → OS clipboard (xclip/wl-copy/pbcopy) | `--skip-tmux` |
+| tmux | `0`-indexed, vi keys, 200k history, `\|` `-` splits, mouse scroll | `--skip-tmux` |
 | Firefox | FoxyProxy + uBlock + Wappalyzer installed, Burp `127.0.0.1:8080` pre-set in FoxyProxy — browser proxy stays on auto, toggle Burp on manually | `--skip-firefox` |
 | VS Code | ILSpy + Snyk installed; codium dropped only if `code` is also present | `--skip-code` |
 
@@ -110,8 +108,6 @@ $HTB_BASE_DIR (default /opt)
 Colors verified: green + navy from [hackthebox.com](https://www.hackthebox.com)'s own brand guide, blue/accents from the established HTB terminal scheme ([audibleblink/hackthebox.vim](https://github.com/audibleblink/hackthebox.vim)). Forced inside tmux only.
 
 Snyk needs a one-time sign-in per user to sync. Not an error, just avoiding storing a token for you.
-
-Copy syncs to the real OS clipboard even outside the VM — on VMware, `open-vm-tools-desktop` is installed automatically (the headless variant doesn't bridge the clipboard to the host).
 
 Every tool tracks upstream latest — GitHub releases, apt, or the tool's own package manager, never a pinned version.
 
